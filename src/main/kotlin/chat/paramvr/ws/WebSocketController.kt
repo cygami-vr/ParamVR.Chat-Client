@@ -78,12 +78,16 @@ object WebSocketController {
             }
         }
 
-        client!!.webSocket(method = HttpMethod.Get, path = "/parameter-listen", request = reqBuilder) {
-            handleMessages()
+        try {
+            client!!.webSocket(method = HttpMethod.Get, path = "/parameter-listen", request = reqBuilder) {
+                handleMessages()
+            }
+        } catch (t: Throwable) {
+            logger.warn("Connection failed", t)
         }
 
-        Thread.sleep(5000)
-        if (!Advanced.vrcpWsStatus.isConnected()) {
+        while (!Advanced.vrcpWsStatus.isConnected()) {
+            Thread.sleep(5000)
             logger.info("Attempting auto reconnect...")
             initClient()
             launch(useSsl)

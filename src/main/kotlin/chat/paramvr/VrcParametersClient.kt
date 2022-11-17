@@ -17,6 +17,8 @@ object VrcParametersClient {
     @JvmStatic
     fun main(args: Array<String>) {
 
+        // To improve stack traces involving coroutines, add the following to VM Options:
+        // -Dkotlinx.coroutines.debug -Dkotlinx.coroutines.stacktrace.recovery=true
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
             logger.error("Uncaught exception", e)
         }
