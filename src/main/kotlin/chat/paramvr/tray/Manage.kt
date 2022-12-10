@@ -46,6 +46,7 @@ object Manage {
         menu.add(createRunOnStartupMenuItem())
         menu.add(createImportAvatarsMenuItem())
         menu.add(createCaptureMenuItem())
+        menu.add(createEmergencyUnlockMenuItem())
 
         return menu
     }
@@ -189,5 +190,13 @@ object Manage {
             }
         }
         return true
+    }
+
+    private fun createEmergencyUnlockMenuItem(): MenuItem {
+        val emergencyUnlock = MenuItem("Emergency unlock")
+        emergencyUnlock.addActionListener {
+            BasicHttpClient.post("client/parameter/emergency-unlock", null)
+        }
+        return emergencyUnlock
     }
 }

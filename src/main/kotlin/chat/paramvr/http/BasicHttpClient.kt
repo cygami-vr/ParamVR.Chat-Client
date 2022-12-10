@@ -62,7 +62,7 @@ object BasicHttpClient {
         }
     }
 
-    fun post(path: String, json: JsonElement) {
+    fun post(path: String, json: JsonElement?) {
         runBlocking {
             tryPost(path, json)?.let {
                 if (!it.status.isSuccess()) {
@@ -74,15 +74,17 @@ object BasicHttpClient {
         }
     }
 
-    private suspend fun tryPost(path: String, json: JsonElement): HttpResponse? {
+    private suspend fun tryPost(path: String, json: JsonElement?): HttpResponse? {
         logger.info("POST: $json to $path")
         return try {
             client!!.post {
-                headers.append("Content-Type", "application/json")
                 headers.append("Authorization", getAuthorization())
                 method = HttpMethod.Post
                 buildUrl(this, path)
-                setBody(gson.toJson(json))
+                json?.let {
+                    headers.append("Content-Type", "application/json")
+                    setBody(gson.toJson(it))
+                }
             }
         } catch (ex: Exception) {
             logger.error("Error submitting http post", ex)

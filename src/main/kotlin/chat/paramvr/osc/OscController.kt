@@ -8,7 +8,6 @@ import chat.paramvr.cfg
 import com.illposed.osc.transport.*
 import java.io.IOException
 import java.net.InetAddress
-import java.net.InetSocketAddress
 
 object OscController {
 
@@ -55,7 +54,7 @@ object OscController {
             DataType.FLOAT.id -> param.value.toFloat()
             DataType.INT.id -> param.value.toInt()
             else -> {
-                logger.warn("bad data type")
+                logger.warn("bad data type ${param.dataType}")
                 return
             }
         }
