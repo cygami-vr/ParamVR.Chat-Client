@@ -16,7 +16,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.stream.Collectors
+import java.util.stream.Stream
 import javax.swing.JOptionPane
+import kotlin.io.path.exists
 
 object Manage {
 
@@ -88,7 +90,11 @@ object Manage {
         val osc = Paths.get(AppData.vrChat()).resolve("OSC")
 
         return Files.list(osc).flatMap { usr ->
-            return@flatMap Files.list(usr.resolve("Avatars")).map { return@map fromJson(it) }
+            val avatarsFolder = usr.resolve("Avatars")
+            return@flatMap if (avatarsFolder.exists())
+                Files.list(avatarsFolder).map { return@map fromJson(it) }
+            else
+                Stream.empty()
         }.collect(Collectors.toList())
     }
 

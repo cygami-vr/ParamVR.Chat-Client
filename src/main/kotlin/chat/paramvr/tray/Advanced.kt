@@ -119,9 +119,9 @@ object Advanced {
                 JOptionPane.WARNING_MESSAGE, null, null, null)
 
             if (option == JOptionPane.YES_OPTION) {
-                val oscInPort = JOptionPane.showInputDialog("Enter OSC in port")
+                val oscInPort = JOptionPane.showInputDialog("Enter OSC in port (default 9001)")
                 cfg.setOscInPort(oscInPort)
-                val oscOutPort = JOptionPane.showInputDialog("Enter OSC out port")
+                val oscOutPort = JOptionPane.showInputDialog("Enter OSC out port (default 9000)")
                 cfg.setOscOutPort(oscOutPort)
                 OscController.connect()
             }

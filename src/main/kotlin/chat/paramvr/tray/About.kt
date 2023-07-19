@@ -23,8 +23,9 @@ object About {
         val licenses = MenuItem("View license information")
         licenses.addActionListener {
             val licenseBytes = About::class.java.classLoader.getResource("licenses.html").readBytes()
-            Files.write(Paths.get(AppData.paramVR()).resolve("licenses.html"), licenseBytes)
-            Desktop.getDesktop().browse(URI("file:///${AppData.paramVR().replace('\\', '/')}/licenses.html"))
+            val licensePath = Paths.get(AppData.paramVR()).resolve("licenses.html")
+            Files.write(licensePath, licenseBytes)
+            Desktop.getDesktop().browse(licensePath.toUri())
         }
         about.add(licenses)
 
