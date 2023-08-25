@@ -1,6 +1,7 @@
 package chat.paramvr
 
 import chat.paramvr.osc.OscController
+import chat.paramvr.oscquery.OscQueryController
 import chat.paramvr.tray.SystemTrayController
 import chat.paramvr.ws.WebSocketController
 import org.slf4j.Logger
@@ -8,7 +9,6 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Paths
 
 val cfg = ClientConfig()
-
 object VrcParametersClient {
 
     val logger: Logger = LoggerFactory.getLogger("ParamVR.Chat")
@@ -27,8 +27,18 @@ object VrcParametersClient {
             cfg.setPath(Paths.get(args[0]))
         }
 
+        Runtime.getRuntime().addShutdownHook(Thread { prepareExit() })
+
         SystemTrayController.init()
         WebSocketController.connect()
+        OscQueryController.init()
         OscController.connect()
+    }
+
+    private fun prepareExit() {
+        logger.info("Preparing to exit process.")
+        WebSocketController.close()
+        OscController.close()
+        OscQueryController.stopService()
     }
 }

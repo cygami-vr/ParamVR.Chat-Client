@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     application
-    kotlin("jvm") version "1.6.21"
+    kotlin("jvm") version "1.9.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.github.jk1.dependency-license-report") version "2.0"
 }
@@ -19,7 +19,7 @@ repositories {
     mavenCentral()
 }
 
-val ktorVersion = "2.0.2"
+val ktorVersion = "2.2.4"
 
 dependencies {
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -27,9 +27,9 @@ dependencies {
     implementation("io.ktor:ktor-client-websockets:$ktorVersion")
     implementation("io.ktor:ktor-serialization-gson:$ktorVersion")
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
-    implementation("ch.qos.logback:logback-classic:1.2.11")
+    implementation("ch.qos.logback:logback-classic:1.4.7")
     implementation("com.illposed.osc:javaosc-core:0.8")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
     testImplementation(kotlin("test"))
 }
 
@@ -37,12 +37,8 @@ tasks.test {
     useJUnitPlatform()
 }
 
-/*tasks.named<JavaExec>("run") {
-    standardInput = System.`in`
-}*/
-
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "17"
 }
 
 tasks.withType<ShadowJar> {
@@ -57,11 +53,3 @@ val jar by tasks.getting(Jar::class) {
         attributes["codebase"] = "https://paramvr.chat/client/"
     }
 }
-
-/*
-ant.jar(destfile: it, update: true) {
-    delegate.manifest {
-        attribute(name: 'permissions', value: 'all-permissions')
-        attribute(name: 'codebase', value: '*')
-    }
-}*/

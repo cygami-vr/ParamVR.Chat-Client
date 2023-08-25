@@ -11,12 +11,10 @@ import io.ktor.serialization.gson.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import chat.paramvr.cfg
-import chat.paramvr.http.BasicHttpClient
+import chat.paramvr.http.ParamVrHttpClient
 import chat.paramvr.http.SslSettings
 import chat.paramvr.tray.Advanced
 import chat.paramvr.ws.WebSocketHandler.handleMessages
-import java.nio.charset.StandardCharsets
-import java.util.*
 
 object WebSocketController {
 
@@ -59,7 +57,13 @@ object WebSocketController {
     fun connect() {
         val useSsl = initClient()
         GlobalScope.launch {
-            launch(useSsl)
+
+            do {
+                initClient()
+                launch(useSsl)
+                Thread.sleep(5000)
+                logger.info("Attempting auto reconnect...")
+            } while (!Advanced.vrcpWsStatus.isConnected())
         }
     }
     private suspend fun launch(useSsl: Boolean) {
@@ -70,7 +74,7 @@ object WebSocketController {
         logger.info("Connecting to ${cfg.getHost()}:${cfg.getPort()} as $targetUser:$listenKey")
 
         val reqBuilder = { reqBuilder: HttpRequestBuilder ->
-            reqBuilder.headers.append("Authorization", BasicHttpClient.getAuthorization())
+            reqBuilder.headers.append("Authorization", ParamVrHttpClient.getAuthorization())
             reqBuilder.url {
                 protocol = if (useSsl) URLProtocol.WSS else URLProtocol.WS
                 host = cfg.getHost()
@@ -84,13 +88,6 @@ object WebSocketController {
             }
         } catch (t: Throwable) {
             logger.warn("Connection failed", t)
-        }
-
-        while (!Advanced.vrcpWsStatus.isConnected()) {
-            Thread.sleep(5000)
-            logger.info("Attempting auto reconnect...")
-            initClient()
-            launch(useSsl)
         }
     }
 }

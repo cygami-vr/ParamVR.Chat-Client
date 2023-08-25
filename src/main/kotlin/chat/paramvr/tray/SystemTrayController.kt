@@ -1,7 +1,7 @@
 package chat.paramvr.tray
 
+import chat.paramvr.VrcParametersClient
 import chat.paramvr.cfg
-import chat.paramvr.osc.OscController
 import chat.paramvr.ws.WebSocketController
 import java.awt.*
 import javax.swing.JOptionPane
@@ -43,11 +43,7 @@ object SystemTrayController {
 
     private fun createExitMenuItem(): MenuItem {
         val exit = MenuItem("Exit")
-        exit.addActionListener {
-            WebSocketController.close()
-            OscController.close()
-            exitProcess(0)
-        }
+        exit.addActionListener { exitProcess(0) }
         return exit
     }
 }

@@ -2,7 +2,7 @@ package chat.paramvr.tray
 
 import chat.paramvr.AppData
 import chat.paramvr.cfg
-import chat.paramvr.http.BasicHttpClient
+import chat.paramvr.http.ParamVrHttpClient
 import chat.paramvr.osc.OscController
 import chat.paramvr.ws.WebSocketController
 import java.awt.Menu
@@ -52,7 +52,7 @@ object Advanced {
             if (option == JOptionPane.YES_OPTION) {
                 Files.list(Paths.get(AppData.paramVR()).resolve("logs")).forEach {
 
-                    BasicHttpClient.submitForm("/client/log", it.fileName.toString(), Files.readAllBytes(it))
+                    ParamVrHttpClient.submitForm("/client/log", it.fileName.toString(), Files.readAllBytes(it))
                 }
                 JOptionPane.showMessageDialog(null, "Upload complete")
             }
@@ -100,7 +100,7 @@ object Advanced {
                 cfg.setHost(host)
                 val port = JOptionPane.showInputDialog("Enter port number")
                 cfg.setPort(port)
-                BasicHttpClient.init()
+                ParamVrHttpClient.init()
                 WebSocketController.connect()
             }
         }

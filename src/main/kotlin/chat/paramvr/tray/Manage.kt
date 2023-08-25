@@ -4,7 +4,7 @@ import chat.paramvr.AppData
 import chat.paramvr.DataType
 import chat.paramvr.VrcParametersClient.logger
 import chat.paramvr.cfg
-import chat.paramvr.http.BasicHttpClient
+import chat.paramvr.http.ParamVrHttpClient
 import chat.paramvr.ws.WebSocketController
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -123,7 +123,7 @@ object Manage {
                 val json = JsonObject()
                 json.addProperty("vrcUuid", id)
                 json.addProperty("name", name)
-                BasicHttpClient.post("/client/avatar", json)
+                ParamVrHttpClient.post("/client/avatar", json)
             }
             JOptionPane.NO_OPTION -> {
                 // nothing to do, just skip
@@ -186,7 +186,7 @@ object Manage {
                     json.add("values", valuesArr)
                 }
 
-                BasicHttpClient.post("/client/parameter", json)
+                ParamVrHttpClient.post("/client/parameter", json)
             }
             JOptionPane.NO_OPTION -> {
                 // nothing to do, just skip
@@ -201,7 +201,7 @@ object Manage {
     private fun createEmergencyUnlockMenuItem(): MenuItem {
         val emergencyUnlock = MenuItem("Emergency unlock")
         emergencyUnlock.addActionListener {
-            BasicHttpClient.post("client/parameter/emergency-unlock", null)
+            ParamVrHttpClient.post("client/parameter/emergency-unlock", null)
         }
         return emergencyUnlock
     }

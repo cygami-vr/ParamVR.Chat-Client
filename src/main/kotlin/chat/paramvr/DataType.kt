@@ -1,4 +1,4 @@
-package chat.paramvr;
+package chat.paramvr
 
 enum class DataType(val id: Short) {
         INT(1),

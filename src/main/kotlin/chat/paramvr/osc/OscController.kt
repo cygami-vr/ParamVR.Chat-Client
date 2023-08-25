@@ -4,7 +4,7 @@ import chat.paramvr.DataType
 import chat.paramvr.VrcParametersClient.logger
 import com.illposed.osc.*
 import chat.paramvr.ws.WebSocketController
-import chat.paramvr.cfg
+import chat.paramvr.oscquery.ServiceDataWatcher
 import com.illposed.osc.transport.*
 import java.io.IOException
 import java.net.InetAddress
@@ -30,13 +30,13 @@ object OscController {
     fun connect() {
 
         close()
+        val serviceData = ServiceDataWatcher.waitForData()
+        logger.info("Creating OSC Connection. In = ${serviceData.oscPortIn}, Out = ${serviceData.oscPortOut}")
 
-        logger.info("Creating OSC Connection. In = ${cfg.getOscInPort()}, Out = ${cfg.getOscOutPort()}")
-
-        portOut = OSCPortOut(InetAddress.getLocalHost(), cfg.getOscOutPort())
+        portOut = OSCPortOut(InetAddress.getLocalHost(), serviceData.oscPortOut)
         portOut?.connect()
 
-        portIn = OSCPortIn(cfg.getOscInPort())
+        portIn = OSCPortIn(serviceData.oscPortIn)
         val selector = object : MessageSelector {
             override fun isInfoRequired() = false
             override fun matches(messageEvent: OSCMessageEvent?) = true
