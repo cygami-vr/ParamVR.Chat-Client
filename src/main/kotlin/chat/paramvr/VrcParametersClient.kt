@@ -6,7 +6,11 @@ import chat.paramvr.tray.SystemTrayController
 import chat.paramvr.ws.WebSocketController
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.IOException
+import java.nio.channels.FileChannel
 import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
+import kotlin.system.exitProcess
 
 val cfg = ClientConfig()
 object VrcParametersClient {
@@ -25,6 +29,20 @@ object VrcParametersClient {
 
         if (args.isNotEmpty()) {
             cfg.setPath(Paths.get(args[0]))
+        }
+
+        try {
+            val fc = FileChannel.open(Paths.get(AppData.paramVR()).resolve(".lock"), StandardOpenOption.CREATE, StandardOpenOption.WRITE)
+            val lock = fc.tryLock()
+            if (lock == null) {
+                logger.warn("Another instance of the ParamVR.Client is already running; exiting.")
+                exitProcess(-1)
+                return
+            }
+        } catch (ex: IOException) {
+            logger.warn("Failed to obtain file lock; exiting.")
+            exitProcess(-1)
+            return
         }
 
         Runtime.getRuntime().addShutdownHook(Thread { prepareExit() })
