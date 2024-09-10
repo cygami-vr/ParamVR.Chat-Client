@@ -50,7 +50,7 @@ object VrcParametersClient {
         SystemTrayController.init()
         WebSocketController.connect()
         OscQueryController.init()
-        OscController.connect()
+        OscController.init()
     }
 
     private fun prepareExit() {

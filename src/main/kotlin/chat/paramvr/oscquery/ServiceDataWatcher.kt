@@ -53,6 +53,9 @@ object ServiceDataWatcher {
             synchronized (waitObject) {
                 waitObject.notifyAll()
             }
+            listeners.forEach {
+                it(newData)
+            }
         }
     }
 
@@ -66,5 +69,11 @@ object ServiceDataWatcher {
         }
         logger.info("Service data already available")
         return serviceData!!
+    }
+
+    private val listeners = mutableListOf<(data: OscQueryServiceData) -> Unit>()
+
+    fun registerServiceDataListener(listener: (data: OscQueryServiceData) -> Unit) {
+        listeners.add(listener)
     }
 }

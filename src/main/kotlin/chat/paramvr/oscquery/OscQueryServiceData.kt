@@ -8,4 +8,6 @@ data class OscQueryServiceData(
     @SerializedName("OscPortOut")
     val oscPortOut: Int,
     @SerializedName("Pid")
-    val pid: Long)
+    val pid: Long,
+    @SerializedName("OscQueryPort")
+    val oscQueryPort: Int)

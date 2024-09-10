@@ -2,6 +2,7 @@ package chat.paramvr.osc
 
 import chat.paramvr.DataType
 import chat.paramvr.VrcParametersClient.logger
+import chat.paramvr.oscquery.OscQueryServiceData
 import com.illposed.osc.*
 import chat.paramvr.ws.WebSocketController
 import chat.paramvr.oscquery.ServiceDataWatcher
@@ -27,10 +28,15 @@ object OscController {
         }
     }
 
-    fun connect() {
+    fun init() {
+        ServiceDataWatcher.registerServiceDataListener {
+            connect(it)
+        }
+    }
+
+    fun connect(serviceData: OscQueryServiceData) {
 
         close()
-        val serviceData = ServiceDataWatcher.waitForData()
         logger.info("Creating OSC Connection. In = ${serviceData.oscPortIn}, Out = ${serviceData.oscPortOut}")
 
         portOut = OSCPortOut(InetAddress.getLocalHost(), serviceData.oscPortOut)

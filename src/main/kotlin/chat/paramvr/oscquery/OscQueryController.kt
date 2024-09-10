@@ -2,7 +2,6 @@ package chat.paramvr.oscquery
 
 import chat.paramvr.AppData
 import chat.paramvr.VrcParametersClient.logger
-import com.google.gson.Gson
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
