@@ -25,7 +25,6 @@ object Advanced {
         advanced.add(vrcpWsStatus.menuItem)
         advanced.add(createRunningInMenuItem())
         advanced.add(createSetServerMenuItem())
-        advanced.add(createSetOscPortsMenuItem())
         advanced.add(createSetKeyStoreMenuItem())
 
         return advanced
@@ -105,28 +104,6 @@ object Advanced {
             }
         }
         return setServer
-    }
-
-    private fun createSetOscPortsMenuItem(): MenuItem {
-        val setOscPorts = MenuItem("Set OSC Ports")
-        setOscPorts.addActionListener {
-
-            val option = JOptionPane.showOptionDialog(null,
-                "Warning: This will override the default OSC ports." +
-                        " You probably don't want to do this unless you know what you are doing." +
-                        " Do you really want to proceed?",
-                "Set OSC ports", JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE, null, null, null)
-
-            if (option == JOptionPane.YES_OPTION) {
-                val oscInPort = JOptionPane.showInputDialog("Enter OSC in port (default 9001)")
-                cfg.setOscInPort(oscInPort)
-                val oscOutPort = JOptionPane.showInputDialog("Enter OSC out port (default 9000)")
-                cfg.setOscOutPort(oscOutPort)
-                OscController.connect()
-            }
-        }
-        return setOscPorts
     }
 
     private fun createSetKeyStoreMenuItem(): MenuItem {

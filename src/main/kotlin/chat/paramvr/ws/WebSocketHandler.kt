@@ -5,7 +5,6 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import chat.paramvr.VrcParametersClient
 import chat.paramvr.VrcParametersClient.logger
-import chat.paramvr.cfg
 import chat.paramvr.http.OscQueryHttpClient
 import chat.paramvr.osc.OscController
 import chat.paramvr.tray.Advanced
@@ -31,8 +30,7 @@ object WebSocketHandler {
             exitProcess(0)
         }
 
-        var avatarId = OscQueryHttpClient.getAvatarId()
-        avatarId = avatarId ?: (cfg.getDefaultAvatar() ?: "")
+        var avatarId = OscQueryHttpClient.getAvatarId() ?: ""
         logger.info("Sending avatar = $avatarId")
         send(Frame.Text(avatarId))
 

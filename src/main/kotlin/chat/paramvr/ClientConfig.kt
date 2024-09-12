@@ -9,11 +9,8 @@ class ClientConfig : Config(Paths.get("ParamVR.Chat-Client.properties")) {
         props.computeIfAbsent(listenKey) { "" }
         props.computeIfAbsent(host) { "paramvr.chat" }
         populate(port, "443") { it.testInt() }
-        populate(oscOutPort, "9000") { it.testInt() }
-        populate(oscInPort, "9001") { it.testInt() }
         props.computeIfAbsent(keyStoreFile) { "" }
         props.computeIfAbsent(keyStorePassword) { "changeit" }
-        props.computeIfAbsent(defaultAvatar) { "" }
     }
 
     fun getTargetUser() = getString(targetUser)
@@ -44,20 +41,6 @@ class ClientConfig : Config(Paths.get("ParamVR.Chat-Client.properties")) {
         save()
     }
 
-    fun getOscOutPort() = getInt(oscOutPort)!!
-
-    fun setOscOutPort(oscOutPort: String) {
-        props.setProperty(Companion.oscOutPort, oscOutPort)
-        save()
-    }
-
-    fun getOscInPort() = getInt(oscInPort)!!
-
-    fun setOscInPort(oscInPort: String) {
-        props.setProperty(Companion.oscInPort, oscInPort)
-        save()
-    }
-
     fun getKeyStoreFile() = getString(keyStoreFile)
 
     fun setKeyStoreFile(keyStoreFile: String) {
@@ -72,22 +55,12 @@ class ClientConfig : Config(Paths.get("ParamVR.Chat-Client.properties")) {
         save()
     }
 
-    fun getDefaultAvatar() = getString(defaultAvatar)
-
-    fun setDefaultAvatar(defaultAvatar: String) {
-        props.setProperty(Companion.defaultAvatar, defaultAvatar)
-        save()
-    }
-
     companion object {
         private const val targetUser = "targetUser"
         private const val listenKey = "listenKey"
         private const val host = "host"
         private const val port = "port"
-        private const val oscOutPort = "oscOutPort"
-        private const val oscInPort = "oscInPort"
         private const val keyStoreFile = "keyStoreFile"
         private const val keyStorePassword = "keystorePassword"
-        private const val defaultAvatar = "defaultAvatar"
     }
 }

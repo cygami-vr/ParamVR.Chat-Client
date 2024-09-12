@@ -3,9 +3,7 @@ package chat.paramvr.tray
 import chat.paramvr.AppData
 import chat.paramvr.DataType
 import chat.paramvr.VrcParametersClient.logger
-import chat.paramvr.cfg
 import chat.paramvr.http.ParamVrHttpClient
-import chat.paramvr.ws.WebSocketController
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -44,23 +42,12 @@ object Manage {
     fun createMenu(): Menu {
         val menu = Menu("Manage...")
 
-        menu.add(createSetDefaultAvatarMenuItem())
         menu.add(createRunOnStartupMenuItem())
         menu.add(createImportAvatarsMenuItem())
         menu.add(createCaptureMenuItem())
         menu.add(createEmergencyUnlockMenuItem())
 
         return menu
-    }
-
-    private fun createSetDefaultAvatarMenuItem(): MenuItem {
-        val setDefaultAvatar = MenuItem("Set Default Avatar")
-        setDefaultAvatar.addActionListener {
-            val avatar = JOptionPane.showInputDialog("Please enter your default avatar name.")
-            cfg.setDefaultAvatar(avatar)
-            WebSocketController.connect()
-        }
-        return setDefaultAvatar
     }
 
     private fun createRunOnStartupMenuItem(): MenuItem {

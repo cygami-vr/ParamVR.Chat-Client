@@ -14,6 +14,7 @@ object OscController {
 
     private var portOut: OSCPortOut? = null
     private var portIn: OSCPortIn? = null
+    private var serviceData: OscQueryServiceData? = null
 
     fun close() {
         try {
@@ -30,19 +31,20 @@ object OscController {
 
     fun init() {
         ServiceDataWatcher.registerServiceDataListener {
-            connect(it)
+            serviceData = it
+            connect()
         }
     }
 
-    fun connect(serviceData: OscQueryServiceData) {
+    fun connect() {
 
         close()
-        logger.info("Creating OSC Connection. In = ${serviceData.oscPortIn}, Out = ${serviceData.oscPortOut}")
+        logger.info("Creating OSC Connection. In = ${serviceData!!.oscPortIn}, Out = ${serviceData!!.oscPortOut}")
 
-        portOut = OSCPortOut(InetAddress.getLocalHost(), serviceData.oscPortOut)
+        portOut = OSCPortOut(InetAddress.getLocalHost(), serviceData!!.oscPortOut)
         portOut?.connect()
 
-        portIn = OSCPortIn(serviceData.oscPortIn)
+        portIn = OSCPortIn(serviceData!!.oscPortIn)
         val selector = object : MessageSelector {
             override fun isInfoRequired() = false
             override fun matches(messageEvent: OSCMessageEvent?) = true
