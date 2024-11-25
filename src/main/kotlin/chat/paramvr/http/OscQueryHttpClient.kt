@@ -8,11 +8,25 @@ import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 
 object OscQueryHttpClient {
 
     private val client = HttpClient(OkHttp)
     private val gson = Gson()
+
+    suspend fun isReachable(): Boolean {
+        return try {
+            val serviceData = ServiceDataWatcher.waitForData()
+            val resp = client.get("http://127.0.0.1:${serviceData.oscQueryPort}?HOST_INFO")
+            val root = gson.fromJson(resp.bodyAsText(), JsonObject::class.java)
+            logger.info("Checking if VRC OSCQuery service is reachable. Response = " + resp.status)
+            resp.status == HttpStatusCode.OK && root.get("NAME").asString.startsWith("VRChat-Client")
+        } catch (ex: Exception) {
+            logger.warn("VRC OSCQuery service not reachable", ex)
+            false
+        }
+    }
 
     suspend fun getAvatarId(): String? {
         return try {

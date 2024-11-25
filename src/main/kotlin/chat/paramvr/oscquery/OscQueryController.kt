@@ -13,10 +13,19 @@ object OscQueryController {
     private var oscQueryServiceProcess: Process? = null
 
     fun init() {
-        forceKillAllServices()
-        extractService()
+        try {
+            forceKillAllServices()
+            extractService()
+        } catch (ex: IOException) {
+            logger.warn("Error during OSCQuery service init. Startup might still succeed.", ex)
+        }
 
         ServiceDataWatcher.startThread()
+        startService()
+    }
+
+    fun restart() {
+        forceKillAllServices()
         startService()
     }
 

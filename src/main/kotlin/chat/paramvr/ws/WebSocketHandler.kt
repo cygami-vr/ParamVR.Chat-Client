@@ -7,6 +7,7 @@ import chat.paramvr.VrcParametersClient
 import chat.paramvr.VrcParametersClient.logger
 import chat.paramvr.http.OscQueryHttpClient
 import chat.paramvr.osc.OscController
+import chat.paramvr.oscquery.OscQueryController
 import chat.paramvr.tray.Advanced
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -62,6 +63,9 @@ object WebSocketHandler {
         if (param.name == "chat-paramvr-activity") {
             sendVRChatStatus()
         } else {
+            if (!OscQueryHttpClient.isReachable()) {
+                OscQueryController.restart()
+            }
             try {
                 OscController.send(param)
             } catch (ex: Exception) {
@@ -71,8 +75,7 @@ object WebSocketHandler {
         }
     }
 
-    private fun sendVRChatStatus() {
-
+    private fun isVrcOpen(): Boolean {
         var isOpen = false
         val tasklist = Runtime.getRuntime().exec("tasklist /fi \"imagename eq vrchat.exe\"")
         BufferedReader(InputStreamReader(tasklist.inputStream)).use {
@@ -87,7 +90,11 @@ object WebSocketHandler {
                 line = it.readLine()
             }
         }
+        return isOpen
+    }
 
+    private fun sendVRChatStatus() {
+        var isOpen = isVrcOpen()
         logger.info("VRC Open = $isOpen")
         UpdateQueue.enqueue("/chat/paramvr/vrcOpen", isOpen)
     }
