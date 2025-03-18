@@ -55,7 +55,7 @@ object OscController {
     }
 
     fun send(param: WebSocketController.VrcParameter) {
-        logger.info("Sending param over OSC: ${param.name} = ${param.value}")
+        logger.debug("Sending param over OSC: {} = {}", param.name, param.value)
 
         val value = when (param.dataType) {
             DataType.BOOL.id -> param.value.toBoolean()

@@ -27,7 +27,7 @@ object OscListener {
         val addr = evt.message.address
         val isActivity = isActive(addr)
         if (!isActivity && shouldLog(addr)) {
-            logger.info("Received OSC message $addr = ${evt.message.arguments}")
+            logger.debug("Received OSC message {} = {}", addr, evt.message.arguments)
         }
 
         if (isActivity) {

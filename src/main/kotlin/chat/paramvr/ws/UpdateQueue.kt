@@ -17,7 +17,7 @@ object UpdateQueue {
     private val mutex = Object()
 
     fun enqueue(name: String, value: Any) {
-        logger.info("Scheduling update $name = $value, Pending = ${pendingUpdates.size}")
+        logger.debug("Scheduling update {} = {}, Pending = {}", name, value, pendingUpdates.size)
         synchronized(mutex) {
             if (!scheduled) {
                 executor.schedule(this::sendUpdates, 1, TimeUnit.SECONDS)
@@ -35,7 +35,7 @@ object UpdateQueue {
                     val arr = createJsonArray()
                     if (!arr.isEmpty) {
                         pendingUpdates.clear()
-                        logger.info("Sending ${arr.size()} updates")
+                        logger.debug("Sending {} updates", arr.size())
                         send(arr)
                     }
                 }
