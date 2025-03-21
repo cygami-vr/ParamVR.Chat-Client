@@ -70,4 +70,10 @@ object OscController {
         val msg = OSCMessage("/avatar/parameters/${param.name}", listOf(value))
         portOut!!.send(msg)
     }
+
+    fun sendAvatarChange(avatarVrcUuid: String) {
+        logger.debug("Sending avatar change over OSC: {}", avatarVrcUuid)
+        val msg = OSCMessage("/avatar/change", listOf(avatarVrcUuid))
+        portOut!!.send(msg)
+    }
 }

@@ -33,6 +33,10 @@ object OscQueryHttpClient {
 
             val serviceData = ServiceDataWatcher.waitForData()
             val resp = client.get("http://127.0.0.1:${serviceData.oscQueryPort}/avatar").bodyAsText()
+
+            // VRC not done starting up. We will get the avatarId from the OscListener when startup completes.
+            if (resp == "OSC Path not found") return null
+
             val root = gson.fromJson(resp, JsonObject::class.java)
 
             val avtrId = root.getAsJsonObject("CONTENTS")

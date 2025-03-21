@@ -31,7 +31,7 @@ object WebSocketHandler {
             exitProcess(0)
         }
 
-        var avatarId = OscQueryHttpClient.getAvatarId() ?: ""
+        val avatarId = OscQueryHttpClient.getAvatarId() ?: ""
         logger.info("Sending avatar = $avatarId")
         send(Frame.Text(avatarId))
 
@@ -39,7 +39,7 @@ object WebSocketHandler {
 
         try {
             while (true) {
-                receiveParameter()
+                receiveMessage()
             }
         } catch (ex: ClosedReceiveChannelException) {
 
@@ -57,12 +57,23 @@ object WebSocketHandler {
         }
     }
 
-    private suspend fun DefaultClientWebSocketSession.receiveParameter() {
-        val param = receiveDeserialized<WebSocketController.VrcParameter>()
+    private suspend fun DefaultClientWebSocketSession.receiveMessage() {
+        val msg = receiveDeserialized<WebSocketController.WebSocketMessage>()
+        if (msg.parameter != null) {
+            handleParameter(msg.parameter)
+        } else if (msg.vrcUuid != null) {
+            handleAvatarChange(msg.vrcUuid)
+        } else {
+            logger.warn("Empty websocket message received")
+        }
+    }
+
+    private suspend fun handleParameter(param: WebSocketController.VrcParameter) {
         logger.info("Received param over websocket: ${param.name} = ${param.value}")
         if (param.name == "chat-paramvr-activity") {
             sendVRChatStatus()
         } else {
+            // Hopeful work-around for occasional issue where VRC does not pick up the ParamVR service.
             if (!OscQueryHttpClient.isReachable()) {
                 OscQueryController.restart()
             }
@@ -72,6 +83,16 @@ object WebSocketHandler {
                 // don't let bad data close the websocket
                 logger.error("Error sending data across OSC", ex)
             }
+        }
+    }
+
+    private fun handleAvatarChange(vrcUuid: String) {
+        logger.info("Received avatar change over websocket to: $vrcUuid")
+        try {
+            OscController.sendAvatarChange(vrcUuid)
+        } catch (ex: Exception) {
+            // don't let bad data close the websocket
+            logger.error("Error sending data across OSC", ex)
         }
     }
 

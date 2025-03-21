@@ -18,6 +18,8 @@ import chat.paramvr.ws.WebSocketHandler.handleMessages
 
 object WebSocketController {
 
+    data class WebSocketMessage(val parameter: VrcParameter?, val vrcUuid: String?)
+
     data class VrcParameter(val name: String, val value: String, val dataType: Short)
 
     var webSocket: DefaultClientWebSocketSession? = null

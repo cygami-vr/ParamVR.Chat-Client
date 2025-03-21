@@ -17,7 +17,7 @@ val cfg = ClientConfig()
 object VrcParametersClient {
 
     val logger: Logger = LoggerFactory.getLogger("ParamVR.Chat")
-    const val PROTOCOL_VERSION = "0.2"
+    const val PROTOCOL_VERSION = "0.3"
 
     @JvmStatic
     fun main(args: Array<String>) {
