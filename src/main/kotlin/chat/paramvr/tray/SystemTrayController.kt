@@ -1,6 +1,5 @@
 package chat.paramvr.tray
 
-import chat.paramvr.VrcParametersClient
 import chat.paramvr.cfg
 import chat.paramvr.ws.WebSocketController
 import java.awt.*
@@ -33,9 +32,9 @@ object SystemTrayController {
         val connect = MenuItem("Connect")
         connect.addActionListener {
             val user = JOptionPane.showInputDialog("Please enter your ParamVR.Chat username.")
-            cfg.setTargetUser(user!!)
+            cfg.setTargetUser(user)
             val key = JOptionPane.showInputDialog("Please enter the listen key obtained from the ParamVR.Chat website.")
-            cfg.setListenKey(key!!)
+            cfg.setListenKey(key)
             WebSocketController.connect()
         }
         return connect

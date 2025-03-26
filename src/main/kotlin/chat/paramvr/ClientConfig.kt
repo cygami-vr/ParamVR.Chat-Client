@@ -15,14 +15,14 @@ class ClientConfig : Config(Paths.get("ParamVR.Chat-Client.properties")) {
 
     fun getTargetUser() = getString(targetUser)
 
-    fun setTargetUser(targetUser: String) {
+    fun setTargetUser(targetUser: String?) {
         props.setProperty(Companion.targetUser, targetUser)
         save()
     }
 
     fun getListenKey() = getString(listenKey)
 
-    fun setListenKey(listenKey: String) {
+    fun setListenKey(listenKey: String?) {
         props.setProperty(Companion.listenKey, listenKey)
         save()
     }

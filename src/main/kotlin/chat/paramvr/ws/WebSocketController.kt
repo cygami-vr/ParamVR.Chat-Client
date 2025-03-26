@@ -15,6 +15,7 @@ import chat.paramvr.http.ParamVrHttpClient
 import chat.paramvr.http.SslSettings
 import chat.paramvr.tray.Advanced
 import chat.paramvr.ws.WebSocketHandler.handleMessages
+import kotlinx.coroutines.Job
 
 object WebSocketController {
 
@@ -25,6 +26,7 @@ object WebSocketController {
     var webSocket: DefaultClientWebSocketSession? = null
 
     private var client : HttpClient? = null
+    private var connectJob : Job? = null
 
     fun close() {
         client?.close()
@@ -57,17 +59,23 @@ object WebSocketController {
     }
 
     fun connect() {
-        val useSsl = initClient()
-        GlobalScope.launch {
-
-            do {
-                initClient()
+        connectJob?.cancel()
+        connectJob = GlobalScope.launch {
+            while (!Advanced.vrcpWsStatus.isConnected() && hasConnectionInfo()) {
+                val useSsl = initClient()
                 launch(useSsl)
                 Thread.sleep(5000)
                 logger.info("Attempting auto reconnect...")
-            } while (!Advanced.vrcpWsStatus.isConnected())
+            }
         }
     }
+
+    private fun hasConnectionInfo(): Boolean {
+        val targetUser = cfg.getTargetUser()
+        val listenKey = cfg.getListenKey()
+        return targetUser != null && listenKey != null && targetUser.isNotBlank() && listenKey.isNotBlank()
+    }
+
     private suspend fun launch(useSsl: Boolean) {
 
         val targetUser = cfg.getTargetUser()
