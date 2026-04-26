@@ -1,0 +1,43 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ParamVR.ViewModels"
+             x:Class="ParamVR.App"
+             xmlns:local="using:ParamVR"
+             RequestedThemeVariant="Default"
+             x:CompileBindings="True">
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+  
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+
+    <TrayIcon.Icons>
+    <TrayIcons>
+      <TrayIcon Icon="/Assets/ParamVR.Chat-Client.ico"
+                ToolTipText="ParamVR.Chat Client"
+                x:DataType="vm:SystemTrayViewModel">
+        <TrayIcon.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="Connect" Command="{Binding Connect}">
+            </NativeMenuItem>
+            <NativeMenuItem Header="Manage">
+              <NativeMenu>
+                <NativeMenuItem Header="Emergency Unlock"  Command="{Binding EmergencyUnlock}" />
+              </NativeMenu>
+            </NativeMenuItem>
+            <NativeMenuItem Header="Advanced">
+              <NativeMenu>
+                <NativeMenuItem Header="{Binding StatusLabelText}" IsEnabled="False" />
+              </NativeMenu>
+            </NativeMenuItem>
+            <NativeMenuItem Header="Exit" Command="{Binding Exit}">
+            </NativeMenuItem>
+          </NativeMenu>
+        </TrayIcon.Menu>
+      </TrayIcon>
+    </TrayIcons>
+  </TrayIcon.Icons>
+</Application>
