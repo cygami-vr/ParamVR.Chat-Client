@@ -23,16 +23,9 @@ internal class MuteLock
         if (muteLock)
         {
             if (muted)
-            {
                 cts?.Cancel();
-                // Resetting to 0 helps prevent the toggle mute shortcut from breaking.
-                SendMute(0);
-            }
             else
-            {
-                logger.Info("Unmuted while mute locked.");
                 StartMuteLock();
-            }
         }
     }
 
@@ -50,6 +43,7 @@ internal class MuteLock
 
     private void StartMuteLock()
     {
+        logger.Info("Unmuted while mute locked.");
         cts?.Cancel();
         cts?.Dispose();
         cts = new();
@@ -60,10 +54,10 @@ internal class MuteLock
     {
         try
         {
-            while (muteLock && !muted)
+            while (muteLock && !muted && !token.IsCancellationRequested)
             {
                 logger.Info("Trying to mute");
-                await Task.Delay(75, token);
+                await Task.Delay(75);
                 SendMute(1);
                 await Task.Delay(75, token);
                 SendMute(0);

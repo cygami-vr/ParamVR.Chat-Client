@@ -27,6 +27,8 @@ internal class OscListener: IDisposable
     private OscServer? receiver;
     private long lastMovementUpdate = -1;
 
+    private static readonly DateTime unixEpoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
     private OscListener() {}
 
     public int StartListening()
@@ -42,11 +44,7 @@ internal class OscListener: IDisposable
 
     // Until I find a better alternative.
     private static long CurrentTimeMillis()
-    {
-        DateTime unixEpoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        long milliseconds = (long)(DateTime.UtcNow - unixEpoch).TotalMilliseconds;
-        return milliseconds;
-    }
+        => (long)(DateTime.UtcNow - unixEpoch).TotalMilliseconds;
 
     public void OnMessage(BlobString addr, OscMessageValues msg)
     {
@@ -83,6 +81,8 @@ internal class OscListener: IDisposable
 
                 if (sAddr.Equals("/avatar/parameters/MuteSelf"))
                     MuteLock.Instance.SetMuted((bool)value);
+                else if (sAddr.Equals("/avatar/change"))
+                    AvatarLock.Instance.SetAvatar((string)value);
             }
         }
     }
@@ -93,8 +93,5 @@ internal class OscListener: IDisposable
     private static bool ShouldIgnore(string addr)
         => ignoredParams.Any(p => addr.StartsWith("/avatar/parameters/" + p));
 
-    public void Dispose()
-    {
-        receiver?.Dispose();
-    }
+    public void Dispose() => receiver?.Dispose();
 }

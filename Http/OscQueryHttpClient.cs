@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ internal class OscQueryHttpClient: IDisposable
         try {
             var resp = await client.GetAsync($"http://127.0.0.1:{Port}/avatar");
             logger.Info("Status code = {status}", resp.StatusCode);
-            if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
+            if (resp.StatusCode == HttpStatusCode.NotFound)
             {
                 // Try again in five seconds.
                 await Task.Delay(5000);
@@ -33,7 +34,7 @@ internal class OscQueryHttpClient: IDisposable
             }
             else
             {
-                string json = await resp.Content.ReadAsStringAsync();
+                var json = await resp.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<AvatarData>(json);
             }
         } catch (Exception ex) {
@@ -61,10 +62,7 @@ internal class OscQueryHttpClient: IDisposable
         WsSender.Instance.Enqueue("/avatar/change", await GetAvatarId() ?? "");
     }
 
-    public void Dispose()
-    {
-        client.Dispose();
-    }
+    public void Dispose() => client.Dispose();
 }
 
 internal class AvatarData

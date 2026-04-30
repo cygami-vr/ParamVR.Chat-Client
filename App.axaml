@@ -26,11 +26,15 @@
             <NativeMenuItem Header="Manage">
               <NativeMenu>
                 <NativeMenuItem Header="Emergency Unlock"  Command="{Binding EmergencyUnlock}" />
+                <NativeMenuItem Header="{Binding StatusLabelText}" IsEnabled="False" />
+                <NativeMenuItem Header="Browse ParamVR.Chat AppData"  Command="{Binding BrowsePvrAppData}" />
+                <NativeMenuItem Header="Open Log Viewer"  Command="{Binding OpenLogViewer}" />
               </NativeMenu>
             </NativeMenuItem>
-            <NativeMenuItem Header="Advanced">
+            <NativeMenuItem Header="About">
               <NativeMenu>
-                <NativeMenuItem Header="{Binding StatusLabelText}" IsEnabled="False" />
+                <NativeMenuItem Header="Icon credit - Toggle button icons created by Icon Mela" Command="{Binding OpenIconCredit}" />
+                <NativeMenuItem Header="View license information" Command="{Binding OpenLicenseInformation}" />
               </NativeMenu>
             </NativeMenuItem>
             <NativeMenuItem Header="Exit" Command="{Binding Exit}">

@@ -1,7 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 using NLog;
 using ParamVR.Http;
 using ParamVR.Osc;
+using ParamVR.Views;
 using ParamVR.Ws;
 
 namespace ParamVR.ViewModels;
@@ -25,22 +29,30 @@ public partial class SystemTrayViewModel : ViewModelBase
 
     public string StatusLabelText => $"Status: {StatusText}";
 
+    private static void Open(string fileName) {
+        Process.Start(new ProcessStartInfo {
+            FileName = fileName,
+            UseShellExecute = true
+        });
+    }
+
     public SystemTrayViewModel()
     {
-        WsController.Instance.StatusChanged += newStatus =>
+        WsControllerNew.Instance.StatusChanged += newStatus =>
         {
-            switch (newStatus) {
+            switch (newStatus)
+            {
                 case Status.CONNECTING:
-                    StatusText = "Status: Connecting to ParamVR.Chat, please wait...";
+                    StatusText = "Connecting to ParamVR.Chat, please wait...";
                     break;
                 case Status.CONNECTED:
-                    StatusText = "Status: Connected.";
+                    StatusText = "Connected.";
                     break;
                 case Status.DISCONNECTED:
-                    StatusText = "Status: Not connected.";
+                    StatusText = "Not connected.";
                     break;
                 case Status.FAILED_RETRYING:
-                    StatusText = "Status: Connection failed, retrying...";
+                    StatusText = "Connection failed, retrying...";
                     break;
             }
         };
@@ -64,8 +76,28 @@ public partial class SystemTrayViewModel : ViewModelBase
     public void EmergencyUnlock()
     {
         MuteLock.Instance.SetMuteLock(false);
+        AvatarLock.Instance.SetAvatarLock(false);
         _ = PvrHttpClient.Instance.Post("client/parameter/emergency-unlock", null, null);
     }
+
+    public void BrowsePvrAppData()
+    {
+        var pvrAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ParamVR.Chat");
+        Open(pvrAppData);
+    }
+
+    public void OpenLogViewer()
+    {
+        var view = new LogView()
+        {
+            DataContext = new LogViewViewModel()
+        };
+        view.Show();
+    }
+
+    public void OpenIconCredit() => Open("https://www.flaticon.com/free-icons/toggle-button");
+
+    public void OpenLicenseInformation() => Open(Path.Combine(AppContext.BaseDirectory, "Assets", "licenses.txt"));
 
     public void Exit() => AppUtils.Exit();
 }

@@ -68,8 +68,5 @@ internal class OscSender: IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        sender?.Dispose();
-    }
+    public void Dispose() => sender?.Dispose();
 }

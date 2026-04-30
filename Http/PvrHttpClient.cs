@@ -41,8 +41,5 @@ internal class PvrHttpClient: IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        client.Dispose();
-    }
+    public void Dispose() => client.Dispose();
 }

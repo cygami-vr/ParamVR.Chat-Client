@@ -29,7 +29,6 @@ internal class WsSender
 
         try
         {
-
             var bytes = Encoding.UTF8.GetBytes(s);
             await Socket.SendAsync(
                 new ArraySegment<byte>(bytes),

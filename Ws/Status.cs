@@ -1,5 +1,6 @@
 namespace ParamVR.Ws;
 
-public enum Status {
+public enum Status
+{
     CONNECTING, CONNECTED, DISCONNECTED, FAILED_RETRYING
 }

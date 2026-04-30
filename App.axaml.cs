@@ -20,7 +20,8 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             PvrChatOscQueryService.Instance.StartListening();
-            _ = WsController.Instance.Restart();
+            // _ = WsController.Instance.Restart();
+            _ = WsControllerNew.Instance.Restart();
             DataContext = new SystemTrayViewModel();
         }
 

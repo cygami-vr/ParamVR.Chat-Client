@@ -1,0 +1,17 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ParamVR.ViewModels"
+        Width="1000"
+        Height="500"
+        Title="ParamVR.Chat Client Log Viewer"
+        WindowStartupLocation="CenterScreen"
+        x:Class="ParamVR.Views.LogView"
+        x:DataType="vm:LogViewViewModel">
+
+
+  <ScrollViewer x:Name="ScrollViewer" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
+      <TextBox x:Name="LogTextBox" VerticalAlignment="Stretch"
+          TextWrapping="Wrap" Text="{Binding LogText}"
+          IsReadOnly="True" FontFamily="Consolas" />
+  </ScrollViewer>
+</Window>

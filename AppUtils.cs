@@ -2,12 +2,15 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using NLog;
+using ParamVR.Http;
+using ParamVR.Osc;
 using ParamVR.ViewModels;
 using ParamVR.Views;
+using ParamVR.Ws;
 
 namespace ParamVR;
 
-class AppUtils
+internal class AppUtils
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -40,6 +43,13 @@ class AppUtils
     public static void Exit()
     {
         logger.Trace("Exiting.");
+        OscQueryHttpClient.Instance.Dispose();
+        PvrHttpClient.Instance.Dispose();   
+        OscListener.Instance.Dispose();
+        OscSender.Instance.Dispose();
+        PvrChatOscQueryService.Instance.Dispose();
+        _ = WsController.Instance.Close();
+        _ = WsControllerNew.Instance.Dispose();
         LogManager.Shutdown();
 
         if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)

@@ -39,7 +39,7 @@ internal class WsReceiver
         SendVRChatStatus();
     }
 
-    private static void SendVRChatStatus()
+    public static void SendVRChatStatus()
     {
         var isOpen = Process.GetProcesses()
             .Any(p => p.ProcessName.Contains("vrchat", StringComparison.OrdinalIgnoreCase));
@@ -72,9 +72,7 @@ internal class WsReceiver
             buffer.AddRange(segment.Take(result.Count));
 
             if (result.EndOfMessage)
-            {
                 return Encoding.UTF8.GetString([.. buffer]);
-            }
         }
     }
 
@@ -106,23 +104,19 @@ internal class WsReceiver
         catch (TaskCanceledException) {}
     }
 
-    private static void HandleMessage(WsMessage msg)
+    public static void HandleMessage(WsMessage msg)
     {
         if (msg.parameter != null)
         {
             logger.Info("Received param over websocket: {name} = {value}", msg.parameter.name, msg.parameter.value);
             if (msg.parameter.name == "chat-paramvr-activity")
-            {
                 SendVRChatStatus();
-            }
             else if (msg.parameter.name == "chat-paramvr-mutelock")
-            {
                 MuteLock.Instance.SetMuteLock("true".Equals(msg.parameter.value));
-            }
+            else if (msg.parameter.name == "chat-paramvr-avatarlock")
+                AvatarLock.Instance.SetAvatarLock("true".Equals(msg.parameter.value));
             else
-            {
                 SendOsc(msg.parameter);
-            }
         }
         else if (msg.vrcUuid != null)
         {
@@ -130,9 +124,7 @@ internal class WsReceiver
             OscSender.Instance.Send("/avatar/change", msg.vrcUuid);
         }
         else
-        {
             logger.Warn("Empty websocket message received");
-        }
     }
 
     // try this?

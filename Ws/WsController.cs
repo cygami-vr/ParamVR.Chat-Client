@@ -8,7 +8,6 @@ namespace ParamVR.Ws;
 
 internal class WsController: IDisposable
 {
-
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
     public static WsController Instance { get; private set; } = new();
 
@@ -95,22 +94,27 @@ internal class WsController: IDisposable
         }
     }
 
-    public async Task Close() {
-        if (Socket != null) {
-            try {
+    public async Task Close()
+    {
+        if (Socket != null)
+        {
+            try
+            {
                 logger.Info("Closing websocket.");
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
                 await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, cts.Token);
-            } catch {}
-                finally {
+            }
+            catch {}
+            finally
+            {
                 Socket.Dispose();
                 Socket = null;
             }
         }
     }
 
-    private async Task Connect(CancellationToken token) {
-
+    private async Task Connect(CancellationToken token)
+    {
         var settings = Settings.Instance.SettingsData;
 
         logger.Info("Connecting to {host}:{port} as {targetUser}:{listenKey}", settings.host, settings.port, settings.targetUser, settings.listenKey);
@@ -121,7 +125,8 @@ internal class WsController: IDisposable
         await Socket.ConnectAsync(new Uri($"{protocol}://{settings.host}:{settings.port}/parameter-listen"), token);
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         CancelTokenSource.Cancel();
         Socket?.Dispose();
     }

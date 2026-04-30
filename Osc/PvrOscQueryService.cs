@@ -91,7 +91,6 @@ internal class PvrChatOscQueryService: IDisposable
         }
         else
         {
-
             if (oscServices.Count == 1)
             {
                 var oscSvc = oscServices.First();
@@ -131,8 +130,5 @@ internal class PvrChatOscQueryService: IDisposable
         return ret;
     }
 
-    public void Dispose()
-    {
-        OscQueryService?.Dispose();
-    }
+    public void Dispose() => OscQueryService?.Dispose();
 }

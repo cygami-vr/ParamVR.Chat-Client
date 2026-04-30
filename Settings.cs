@@ -12,7 +12,6 @@ namespace ParamVR;
 
 internal class Settings
 {
-
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
     public static Settings Instance { get; } = new Settings();
 
@@ -21,7 +20,6 @@ internal class Settings
 
     private Settings()
     {
-
         var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ParamVR.Chat");
         var appSettings = Path.Combine(basePath, "ParamVR.Chat-Client.json");
         if (!File.Exists(appSettings))
@@ -48,7 +46,8 @@ internal class Settings
     {
         logger.Info("Settings changed.");
         SettingsData = settings;
-        _ = WsController.Instance.Restart();
+        // _ = WsController.Instance.Restart();
+        _ = WsControllerNew.Instance.Restart();
     }
 
     public void SetConnectionInfo(string targetUser, string listenKey)
@@ -65,6 +64,23 @@ internal class Settings
     {
         return Convert.ToBase64String(Encoding.UTF8.GetBytes($"{SettingsData.targetUser}:{SettingsData.listenKey}"));
     }
+
+    public Uri GetUri()
+    {
+        var protocol = SettingsData.host.Equals("127.0.0.1") || SettingsData.host.Equals("localhost") ? "ws" : "wss";
+        return new Uri($"{protocol}://{SettingsData.host}:{SettingsData.port}/parameter-listen");
+    }
+
+    public void SetConnectionInfo(WsImpl ws)
+    {
+        logger.Info("Connecting to {host}:{port} as {targetUser}:{listenKey}", SettingsData.host, SettingsData.port, SettingsData.targetUser, SettingsData.listenKey);
+        ws.RequestHeaders["Authorization"] = "Basic " + GetAuthorization();
+        ws.Uri = GetUri();
+    }
+
+    public bool HasConnectionInfo()
+        => SettingsData.targetUser != null && SettingsData.targetUser.Length > 0
+            && SettingsData.listenKey != null && SettingsData.listenKey.Length > 0;
 }
 
 internal class SettingsData
