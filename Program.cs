@@ -48,14 +48,14 @@ sealed class Program
                 logger.Error(e.Exception, "Unhandled exception");
                 e.SetObserved();
             };
+
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown);
         }
         finally
         {
             mutex?.ReleaseMutex();
             mutex?.Dispose();
         }
-
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown);
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
