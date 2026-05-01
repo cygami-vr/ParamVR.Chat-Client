@@ -14,11 +14,11 @@ internal class AppUtils
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-    public static Task ShowMessageDialog(string title, string label)
+    public static Task ShowMessage(string title, string msg)
     {
-        var dialog = new InputDialog
+        var dialog = new MessageView
         {
-            DataContext = new InputDialogViewModel(title, label)
+            DataContext = new MessageViewViewModel(title, msg)
         };
 
         var tcs = new TaskCompletionSource<bool>();
@@ -27,11 +27,11 @@ internal class AppUtils
         return tcs.Task;
     }
 
-    public static Task<string?> ShowInputDialog(string title, string label)
+    public static Task<string?> ShowInputPrompt(string title, string label)
     {
-        var dialog = new InputDialog
+        var dialog = new InputPrompt
         {
-            DataContext = new InputDialogViewModel(title, label)
+            DataContext = new InputPromptViewModel(title, label)
         };
 
         var tcs = new TaskCompletionSource<string?>();

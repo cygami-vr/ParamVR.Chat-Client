@@ -6,8 +6,8 @@
         CanResize="False"
         Title="{Binding Title}"
         WindowStartupLocation="CenterScreen"
-        x:Class="ParamVR.Views.InputDialog"
-        x:DataType="vm:InputDialogViewModel">
+        x:Class="ParamVR.Views.InputPrompt"
+        x:DataType="vm:InputPromptViewModel">
 
   <StackPanel Margin="12" Spacing="8">
 

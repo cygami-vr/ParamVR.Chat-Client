@@ -3,11 +3,11 @@ using Avalonia.Interactivity;
 
 namespace ParamVR.Views;
 
-public partial class InputDialog : Window
+public partial class InputPrompt : Window
 {
     public string? Result { get; private set; }
 
-    public InputDialog()
+    public InputPrompt()
     {
         InitializeComponent();
     }

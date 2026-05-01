@@ -3,9 +3,9 @@ using Avalonia.Interactivity;
 
 namespace ParamVR.Views;
 
-public partial class MessageDialog : Window
+public partial class MessageView : Window
 {
-    public MessageDialog()
+    public MessageView()
     {
         InitializeComponent();
     }

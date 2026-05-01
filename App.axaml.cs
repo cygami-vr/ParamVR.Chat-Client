@@ -1,5 +1,4 @@
 using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using ParamVR.ViewModels;
 using ParamVR.Osc;
@@ -17,13 +16,9 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            PvrChatOscQueryService.Instance.StartListening();
-            // _ = WsController.Instance.Restart();
-            _ = WsControllerNew.Instance.Restart();
-            DataContext = new SystemTrayViewModel();
-        }
+        PvrChatOscQueryService.Instance.StartListening();
+        // _ = WsController.Instance.Restart();
+        _ = WsControllerNew.Instance.Restart();
 
         base.OnFrameworkInitializationCompleted();
     }

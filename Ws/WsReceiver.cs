@@ -29,7 +29,7 @@ internal class WsReceiver
         await WsSender.Send(Protocol_Version);
         if (!Protocol_Version.Equals(protocolVersion))
         {
-            await AppUtils.ShowMessageDialog("Update required", "Your ParamVR.Chat Client is out of date. Please update and try again.");
+            await AppUtils.ShowMessage("Update required", "Your ParamVR.Chat Client is out of date. Please update and try again.");
             AppUtils.Exit();
             return;
         }

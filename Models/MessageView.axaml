@@ -6,8 +6,8 @@
         CanResize="False"
         Title="{Binding Title}"
         WindowStartupLocation="CenterScreen"
-        x:Class="ParamVR.Views.MessageDialog"
-        x:DataType="vm:MessageDialogViewModel">
+        x:Class="ParamVR.Views.MessageView"
+        x:DataType="vm:MessageViewViewModel">
 
   <StackPanel Margin="12" Spacing="8">
 

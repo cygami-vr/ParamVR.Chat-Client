@@ -60,12 +60,12 @@ public partial class SystemTrayViewModel : ViewModelBase
 
     public async Task Connect()
     {
-        string? targetUser = await AppUtils.ShowInputDialog("Username", "Please enter your ParamVR.Chat username:");
+        string? targetUser = await AppUtils.ShowInputPrompt("Username", "Please enter your ParamVR.Chat username:");
 
         if (targetUser == null || targetUser.Length == 0)
             return;
         
-        string? listenKey = await AppUtils.ShowInputDialog("Listen key", "Please enter the listen key obtained from the ParamVR.Chat website:");
+        string? listenKey = await AppUtils.ShowInputPrompt("Listen key", "Please enter the listen key obtained from the ParamVR.Chat website:");
 
         if (listenKey == null || listenKey.Length == 0)
             return;
