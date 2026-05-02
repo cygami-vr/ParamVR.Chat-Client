@@ -5,6 +5,7 @@
         Height="95"
         CanResize="False"
         Title="{Binding Title}"
+        Icon="/Assets/ParamVR.Chat-Client.ico"
         WindowStartupLocation="CenterScreen"
         x:Class="ParamVR.Views.MessageView"
         x:DataType="vm:MessageViewViewModel">

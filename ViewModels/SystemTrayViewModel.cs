@@ -38,7 +38,7 @@ public partial class SystemTrayViewModel : ViewModelBase
 
     public SystemTrayViewModel()
     {
-        WsControllerNew.Instance.StatusChanged += newStatus =>
+        WsController.Instance.StatusChanged += newStatus =>
         {
             switch (newStatus)
             {

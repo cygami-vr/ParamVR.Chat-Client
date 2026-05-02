@@ -23,6 +23,8 @@ public class WsImpl : IDisposable
     public event Action<WebSocketState>? StateChanged;
     public event Action<string>? MessageReceived;
 
+    public Func<CancellationToken, Task>? Handshake;
+
     private CancellationTokenSource? cts;
 
     private bool started;
@@ -110,6 +112,8 @@ public class WsImpl : IDisposable
             cts = new();
             var ct = cts.Token;
             await ConnectLoop(ct);
+            if (Handshake != null)
+                await Handshake(ct);
             await ReceiveLoop(ct);
         }
         catch (Exception ex)
@@ -188,7 +192,7 @@ public class WsImpl : IDisposable
             while (ws != null && ws.State == WebSocketState.Open && !ct.IsCancellationRequested)
             {
                 var msg = await Receive(buffer, ct);
-                logger.Info("Received websocket message = {msg}", msg);
+                logger.Trace("Received websocket message = {msg}", msg);
                 MessageReceived?.Invoke(msg);
             }
         }
@@ -215,7 +219,7 @@ public class WsImpl : IDisposable
             logger.Warn("Websocket not open, cannot send message.");
             return;
         }
-        logger.Info("Sending websocket message {msg}", msg);
+        logger.Trace("Sending websocket message {msg}", msg);
 
         var bytes = Encoding.UTF8.GetBytes(msg);
         using var timeoutCts = new CancellationTokenSource(1000);

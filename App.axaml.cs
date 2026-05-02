@@ -17,8 +17,7 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         PvrChatOscQueryService.Instance.StartListening();
-        // _ = WsController.Instance.Restart();
-        _ = WsControllerNew.Instance.Restart();
+        _ = WsController.Instance.Restart();
 
         base.OnFrameworkInitializationCompleted();
     }

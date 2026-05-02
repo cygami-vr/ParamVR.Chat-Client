@@ -5,6 +5,7 @@
         Height="135"
         CanResize="False"
         Title="{Binding Title}"
+        Icon="/Assets/ParamVR.Chat-Client.ico"
         WindowStartupLocation="CenterScreen"
         x:Class="ParamVR.Views.InputPrompt"
         x:DataType="vm:InputPromptViewModel">

@@ -46,8 +46,7 @@ internal class Settings
     {
         logger.Info("Settings changed.");
         SettingsData = settings;
-        // _ = WsController.Instance.Restart();
-        _ = WsControllerNew.Instance.Restart();
+        _ = WsController.Instance.Restart();
     }
 
     public void SetConnectionInfo(string targetUser, string listenKey)

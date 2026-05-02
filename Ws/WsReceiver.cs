@@ -1,13 +1,7 @@
 using System.Diagnostics;
-using System.Net.WebSockets;
-using System.Text;
-using System.Text.Json;
 using NLog;
-using System.Threading.Tasks;
 using System.Linq;
 using System;
-using System.Collections.Generic;
-using ParamVR.Http;
 using ParamVR.Osc;
 
 namespace ParamVR.Ws;
@@ -21,24 +15,6 @@ internal class WsReceiver
 
     private WsReceiver() {}
 
-    private static async Task Handshake(ClientWebSocket ws)
-    {
-        var protocolVersion = await Receive(ws);
-        logger.Info("Required protocol version = {protocolVersion}", protocolVersion);
-        // validation is done by the server; can't trust the client
-        await WsSender.Send(Protocol_Version);
-        if (!Protocol_Version.Equals(protocolVersion))
-        {
-            await AppUtils.ShowMessage("Update required", "Your ParamVR.Chat Client is out of date. Please update and try again.");
-            AppUtils.Exit();
-            return;
-        }
-        string avatarId = await OscQueryHttpClient.Instance.GetAvatarId() ?? "";
-        logger.Info("Sending avatar = {avatarId}", avatarId);
-        await WsSender.Send(avatarId);
-        SendVRChatStatus();
-    }
-
     public static void SendVRChatStatus()
     {
         var isOpen = Process.GetProcesses()
@@ -46,62 +22,6 @@ internal class WsReceiver
 
         logger.Info("VRC Open = {isOpen}", isOpen);
         WsSender.Instance.Enqueue("/chat/paramvr/vrcOpen", isOpen);
-    }
-
-    private static async Task<string> Receive(ClientWebSocket ws)
-    {
-        return await Receive(ws, new byte[1024]);
-    }
-
-    private static async Task<string> Receive(ClientWebSocket ws, byte[] segment)
-    {
-        if (ws == null)
-            return "";
-        var buffer = new List<byte>();
-
-        while (true)
-        {
-            var result = await ws.ReceiveAsync(new ArraySegment<byte>(segment), WsController.Instance.CancelToken);
-
-            if (result.MessageType == WebSocketMessageType.Close)
-            {
-                logger.Trace("Received close message.");
-                throw new TaskCanceledException();
-            }
-
-            buffer.AddRange(segment.Take(result.Count));
-
-            if (result.EndOfMessage)
-                return Encoding.UTF8.GetString([.. buffer]);
-        }
-    }
-
-    public static async Task StartReceiveLoop(ClientWebSocket ws)
-    {
-        try
-        {
-            await Handshake(ws);
-            logger.Info("Starting receive loop.");
-            WsController.Instance.UpdateStatus(Status.CONNECTED);
-            var segment = new byte[1024];
-
-            while (ws.State == WebSocketState.Open)
-            {
-                var json = await Receive(ws, segment);
-                var msg = JsonSerializer.Deserialize<WsMessage>(json);
-                if (msg != null)
-                    HandleMessage(msg);
-            }
-
-            logger.Info("Receive loop exited normally.");
-
-        }
-        catch (WebSocketException ex)
-        {
-            logger.Error(ex, "websocket error");
-            WsController.Instance.UpdateStatus(Status.FAILED_RETRYING);
-        }
-        catch (TaskCanceledException) {}
     }
 
     public static void HandleMessage(WsMessage msg)

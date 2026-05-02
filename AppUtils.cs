@@ -48,8 +48,7 @@ internal class AppUtils
         OscListener.Instance.Dispose();
         OscSender.Instance.Dispose();
         PvrChatOscQueryService.Instance.Dispose();
-        _ = WsController.Instance.Close();
-        _ = WsControllerNew.Instance.Dispose();
+        _ = WsController.Instance.Dispose();
         LogManager.Shutdown();
 
         if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)

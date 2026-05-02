@@ -1,25 +1,36 @@
 using System;
 using System.Net.WebSockets;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog;
+using ParamVR.Http;
 
 namespace ParamVR.Ws;
 
-internal class WsController: IDisposable
+internal class WsController
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
     public static WsController Instance { get; private set; } = new();
 
-    public CancellationTokenSource CancelTokenSource { get; private set; } = new();
-    public CancellationToken CancelToken => CancelTokenSource.Token;
+    private readonly WsImpl ws = new();
 
-    private Task? supervisorTask;
-    private readonly object supervisorMutex = new();
     public event Action<Status>? StatusChanged;
-    public ClientWebSocket? Socket { get; private set; }
 
-    private WsController() {}
+    private WsController()
+    {
+        ws.StateChanged += StateChanged;
+        ws.MessageReceived += MessageReceived;
+        ws.Handshake += Handshake;
+    }
+
+    private void StateChanged(WebSocketState state)
+    {
+        if (state == WebSocketState.None || state == WebSocketState.CloseSent || state == WebSocketState.CloseReceived || state == WebSocketState.Closed || state == WebSocketState.Aborted)
+        {
+            UpdateStatus(Status.FAILED_RETRYING);
+        }
+    }
 
     public void UpdateStatus(Status status)
     {
@@ -27,107 +38,56 @@ internal class WsController: IDisposable
         StatusChanged?.Invoke(status);
     }
 
-    public void StartSupervisor()
+    private void MessageReceived(string msg)
     {
-        lock (supervisorMutex)
-            if (supervisorTask == null || supervisorTask.IsCompleted)
-                supervisorTask = SupervisorLoop();
-    }
-
-    private async Task SupervisorLoop()
-    {
-        logger.Trace("Supervisor loop started.");
-
-        while (!CancelTokenSource.IsCancellationRequested)
-        {
-            try
-            {
-                await Connect(CancelTokenSource.Token);
-                if (Socket != null)
-                    await WsReceiver.StartReceiveLoop(Socket);
-            }
-            catch (OperationCanceledException)
-            {
-                logger.Trace("Supervisor cancelled.");
-                break;
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "Connection attempt failed; retrying in 5s.");
-                UpdateStatus(Status.FAILED_RETRYING);
-                try
-                {
-                    await Task.Delay(5000, CancelTokenSource.Token);
-                }
-                catch (TaskCanceledException) {}
-            }
-        }
-
-        logger.Trace("Supervisor loop exited.");
+        var wsMsg = JsonSerializer.Deserialize<WsMessage>(msg);
+        if (wsMsg != null)
+            WsReceiver.HandleMessage(wsMsg);
     }
 
     public async Task Restart()
     {
-        logger.Info("Restart requested.");
-        UpdateStatus(Status.CONNECTING);
-        CancelTokenSource.Cancel();
-
-        Task? oldSupervisorTask = null;
-        lock (supervisorMutex)
-            oldSupervisorTask = supervisorTask;
-
-        if (oldSupervisorTask != null)
-            await oldSupervisorTask;
-
-        CancelTokenSource.Dispose();
-        CancelTokenSource = new CancellationTokenSource();
-        await Close();
-        var settings = Settings.Instance.SettingsData;
-        if (settings.targetUser?.Length > 0 && settings.listenKey?.Length > 0)
+        if (Settings.Instance.HasConnectionInfo())
         {
-            StartSupervisor();
+            UpdateStatus(Status.CONNECTING);
+            await ws.Stop();
+            Settings.Instance.SetConnectionInfo(ws);
+            await ws.Start();
         }
         else
         {
-            logger.Info("Connection info missing.");
+            await ws.Stop();
             UpdateStatus(Status.DISCONNECTED);
         }
     }
 
-    public async Task Close()
+    public async Task Dispose()
     {
-        if (Socket != null)
+        await ws.Stop();
+        ws.Dispose();
+    }
+
+    private async Task Handshake(CancellationToken ct)
+    {
+        logger.Info("Beginning handshake.");
+        var buffer = new byte[1024];
+        var protocolVersion = await ws.Receive(buffer, ct);
+        logger.Info("Required protocol version = {protocolVersion}", protocolVersion);
+        // validation is done by the server; can't trust the client
+        await ws.Send(WsReceiver.Protocol_Version);
+        if (!WsReceiver.Protocol_Version.Equals(protocolVersion))
         {
-            try
-            {
-                logger.Info("Closing websocket.");
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-                await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, cts.Token);
-            }
-            catch {}
-            finally
-            {
-                Socket.Dispose();
-                Socket = null;
-            }
+            await AppUtils.ShowMessage("Update required", "Your ParamVR.Chat Client is out of date. Please update and try again.");
+            AppUtils.Exit();
+            return;
         }
+        string avatarId = await OscQueryHttpClient.Instance.GetAvatarId() ?? "";
+        logger.Info("Sending avatar = {avatarId}", avatarId);
+        await ws.Send(avatarId);
+        WsReceiver.SendVRChatStatus();
+        logger.Info("Handshake complete.");
+        UpdateStatus(Status.CONNECTED);
     }
 
-    private async Task Connect(CancellationToken token)
-    {
-        var settings = Settings.Instance.SettingsData;
-
-        logger.Info("Connecting to {host}:{port} as {targetUser}:{listenKey}", settings.host, settings.port, settings.targetUser, settings.listenKey);
-        var protocol = settings.host.Equals("127.0.0.1") || settings.host.Equals("localhost") ? "ws" : "wss";
-
-        Socket = new();
-        Socket.Options.SetRequestHeader("Authorization", "Basic " + Settings.Instance.GetAuthorization());
-        await Socket.ConnectAsync(new Uri($"{protocol}://{settings.host}:{settings.port}/parameter-listen"), token);
-    }
-
-    public void Dispose()
-    {
-        CancelTokenSource.Cancel();
-        Socket?.Dispose();
-    }
+    public async Task Send(string msg) => await ws.Send(msg);
 }
