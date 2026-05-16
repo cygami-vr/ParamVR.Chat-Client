@@ -1,6 +1,9 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using Avalonia.Media;
+using Avalonia.Threading;
 
 namespace ParamVR.ViewModels;
 
@@ -9,34 +12,52 @@ namespace ParamVR.ViewModels;
  */
 public partial class LogViewViewModel : ViewModelBase
 {
-    public string LogText { get; set; } = "";
+    public ObservableCollection<LogLineViewModel> LogLines { get; } = [];
 
     private readonly string logPath;
     private FileSystemWatcher? _watcher;
 
+    private const int MaxLines = 200;
+
     public LogViewViewModel()
     {
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        logPath = Path.Combine(appData, "ParamVR.Chat", "logs", "latest.log");
+        logPath = Path.Combine(appData, "ParamVR", "logs", "latest.log");
 
         foreach (var line in File.ReadLines(logPath).TakeLast(100))
             OnLogLineReceived(line);
+        
+        lastPosition = new FileInfo(logPath).Length;
 
         _watcher = new FileSystemWatcher(Path.GetDirectoryName(logPath)!, Path.GetFileName(logPath))
         {
             NotifyFilter = NotifyFilters.Size | NotifyFilters.LastWrite
         };
+
         _watcher.Changed += (_, _) => ReadNewLines();
         _watcher.EnableRaisingEvents = true;
     }
 
     private void OnLogLineReceived(string line)
     {
-        LogText += line + Environment.NewLine;
-        if (LogText.Length > 10000)
-            LogText = LogText[^8000..];
-        OnPropertyChanged();
-        OnPropertyChanged(nameof(LogText));
+        IBrush? color = null;
+
+        if (line.Contains("WARN"))
+            color = Brushes.Orange;
+        else if (line.Contains("ERROR"))
+            color = Brushes.Red;
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            LogLines.Add(new LogLineViewModel
+            {
+                Text = line,
+                Color = color
+            });
+
+            while (LogLines.Count > MaxLines)
+                LogLines.RemoveAt(0);
+        });
     }
 
     private long lastPosition;
@@ -45,6 +66,7 @@ public partial class LogViewViewModel : ViewModelBase
     {
         using var stream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         stream.Seek(lastPosition, SeekOrigin.Begin);
+
         using var reader = new StreamReader(stream);
 
         while (reader.ReadLine() is { } line)

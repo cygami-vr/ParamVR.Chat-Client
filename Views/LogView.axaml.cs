@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Specialized;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Media;
 using ParamVR.ViewModels;
 
 namespace ParamVR.Views;
@@ -9,16 +13,30 @@ public partial class LogView : Window
     {
         InitializeComponent();
 
-        LogTextBox.PropertyChanged += (_, evt) =>
+        DataContextChanged += (_, _) =>
         {
-            if (evt.Property == TextBox.TextProperty)
-                ScrollViewer.ScrollToEnd();
-        };
+            if (DataContext is LogViewViewModel vm)
+            {
+                vm.LogLines.CollectionChanged += (_, evt) =>
+                {
+                    if (evt.Action == NotifyCollectionChangedAction.Add && evt.NewItems != null)
+                    {
+                        foreach (LogLineViewModel line in evt.NewItems)
+                            AppendLine(line);
 
-        Closing += (_, _) =>
-        {
-            if (DataContext is LogViewViewModel model)
-                model.Stop();
+                        ScrollViewer.ScrollToEnd();
+                    }
+                };
+            }
         };
+    }
+    
+    private void AppendLine(LogLineViewModel line)
+    {
+        LogTextBlock.Inlines?.Add(new Run(line.Text + Environment.NewLine)
+        {
+            Foreground = line.Color ?? Foreground,
+            FontFamily = FontFamily.Parse("Consolas, Noto Sans Mono, JetBrains Mono, DejaVu Sans Mono, monospace")
+        });
     }
 }

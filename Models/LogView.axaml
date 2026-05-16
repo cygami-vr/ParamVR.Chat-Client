@@ -10,9 +10,7 @@
         x:DataType="vm:LogViewViewModel">
 
 
-  <ScrollViewer x:Name="ScrollViewer" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
-      <TextBox x:Name="LogTextBox" VerticalAlignment="Stretch"
-          TextWrapping="Wrap" Text="{Binding LogText}"
-          IsReadOnly="True" FontFamily="Consolas" />
-  </ScrollViewer>
+    <ScrollViewer x:Name="ScrollViewer">
+        <SelectableTextBlock x:Name="LogTextBlock" FontFamily="Consolas, Noto Sans Mono, JetBrains Mono, DejaVu Sans Mono, monospace"/>
+    </ScrollViewer>
 </Window>
