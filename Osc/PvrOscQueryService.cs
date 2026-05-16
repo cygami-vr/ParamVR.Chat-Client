@@ -68,7 +68,7 @@ internal class PvrChatOscQueryService: IDisposable
     {
         try
         {
-            while (CheckForOscServices())
+            while (await CheckForOscServices())
                 await Task.Delay(5000);
         }
         catch (Exception ex)
@@ -77,7 +77,7 @@ internal class PvrChatOscQueryService: IDisposable
         }
     }
 
-    private bool CheckForOscServices()
+    private async Task<bool> CheckForOscServices()
     {
         if (OscQueryService == null)
             return true;
@@ -87,36 +87,51 @@ internal class PvrChatOscQueryService: IDisposable
 
         if (oscServices.Count > 1 || oscQueryServices.Count > 1)
         {
-            logger.Warn("Too many services. Restarting.");
-            Instance.StartListening();
-            return false;
+            var responsiveServices = new HashSet<OSCQueryServiceProfile>();
+
+            foreach (var oscQueryService in oscQueryServices) {
+                var responsive = await OscQueryHttpClient.Instance.IsServiceResponsive(oscQueryService.port);
+                logger.Info("OSCQuery service {name} responsive = {responsive}", oscQueryService.name, responsive);
+                if (responsive)
+                    responsiveServices.Add(oscQueryService);
+            }
+            
+            logger.Info("Responsive OSCQuery services = {services}", ToString(responsiveServices));
+            if (responsiveServices.Count == 0)
+            {
+                StartListening();
+                return false;
+            }
+            else
+            {
+                var oscQueryService = oscQueryServices.First();
+                var oscService = oscServices.FirstOrDefault(s => s.name == oscQueryService.name);
+                if (oscService == null)
+                {
+                    logger.Warn("{name} was responsive but no matching OSC service found. Restarting.", oscQueryService.name);
+                    StartListening();
+                    return false;
+                }
+                else
+                {
+                    HandleOscQueryProfile(oscQueryService);
+                    HandleOscProfile(oscService);   
+                }
+            }
         }
         else
         {
             if (oscServices.Count == 1)
-            {
-                var oscSvc = oscServices.First();
-                if (OscPortOut != oscSvc.port)
-                {
-                    logger.Info("VRChat OSC service {name} found on port {port}", oscSvc.name, oscSvc.port);
-                    OscPortOut = oscSvc.port;
-                    OscSender.Instance.InitSender(OscPortOut);
-                }
-            }
+                HandleOscProfile(oscServices.First());
 
             if (oscQueryServices.Count == 1)
-            {
-                var oscQuerySvc = oscQueryServices.First();
-                if (OscQueryPort != oscQuerySvc.port)
-                {
-                    logger.Info("VRChat OSCQuery service {name} found on port {port}", oscQuerySvc.name, oscQuerySvc.port);
-                    OscQueryPort = oscQuerySvc.port;
-                    OscQueryHttpClient.Instance.SetPortAsync(OscQueryPort);
-                }
-            }
+                HandleOscQueryProfile(oscQueryServices.First());
         }
         return true;
     }
+
+    private static string ToString(ICollection<OSCQueryServiceProfile> services)
+        => "[" + string.Join(", ", services.Select(s => s.name + " on port " + s.port)) + "]";
 
     private HashSet<OSCQueryServiceProfile> GetVrcServices(HashSet<OSCQueryServiceProfile> services)
     {
@@ -128,8 +143,28 @@ internal class PvrChatOscQueryService: IDisposable
             .ToHashSet();
 
         if (ret.Count > 1)
-            logger.Warn("More than one VRC {type} service found. Services = {services}", ret.First().serviceType, string.Join(", ", ret.Select(s => s.name)));
+            logger.Warn("More than one VRC {type} service found. Services = {services}", ret.First().serviceType, ToString(services));
         return ret;
+    }
+
+    private void HandleOscProfile(OSCQueryServiceProfile profile)
+    {
+        if (OscPortOut != profile.port)
+        {
+            logger.Info("VRChat OSC service {name} found on port {port}", profile.name, profile.port);
+            OscPortOut = profile.port;
+            OscSender.Instance.InitSender(OscPortOut);
+        }
+    }
+
+    private void HandleOscQueryProfile(OSCQueryServiceProfile profile)
+    {
+        if (OscQueryPort != profile.port)
+        {
+            logger.Info("VRChat OSCQuery service {name} found on port {port}", profile.name, profile.port);
+            OscQueryPort = profile.port;
+            OscQueryHttpClient.Instance.SetPortAsync(OscQueryPort);
+        }
     }
 
     public void Dispose() => OscQueryService?.Dispose();

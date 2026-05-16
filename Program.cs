@@ -10,7 +10,6 @@ namespace ParamVR;
 
 sealed class Program
 {
-
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
     private static Mutex? mutex;
     
@@ -50,13 +49,14 @@ sealed class Program
                 e.SetObserved();
             };
 
-            Dispatcher.UIThread.UnhandledException += (_, e) =>
+            try
             {
-                logger.Error(e.Exception, "Unhandled exception");
-                e.Handled = true;
-            };
-
-            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown);
+                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Avalonia error");
+            }
         }
         finally
         {

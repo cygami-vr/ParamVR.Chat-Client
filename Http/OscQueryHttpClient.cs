@@ -19,6 +19,33 @@ internal class OscQueryHttpClient: IDisposable
 
     private OscQueryHttpClient() {}
 
+    public async Task<bool> IsServiceResponsive(int port)
+        => await IsServiceResponsive(port, 10);
+
+    private async Task<bool> IsServiceResponsive(int port, int attemptsLeft)
+    {
+        if (attemptsLeft <= 0)
+        {
+            logger.Warn("Reached attempt limit for port {port}.", port);
+            return false;
+        }
+        try
+        {
+            var resp = await client.GetAsync($"http://127.0.0.1:{port}/avatar");
+            logger.Info("Testing port {port}. Got status code = {status}", port, resp.StatusCode);
+            if (resp.StatusCode == HttpStatusCode.NotFound)
+            {
+                await Task.Delay(1000);
+                return await IsServiceResponsive(port, attemptsLeft - 1);
+            }
+            return resp.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private async Task<AvatarData?> GetAvatarData()
     {
         if (Port == -1)

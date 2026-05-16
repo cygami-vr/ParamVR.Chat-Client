@@ -9,7 +9,6 @@
         x:Class="ParamVR.Views.LogView"
         x:DataType="vm:LogViewViewModel">
 
-
     <ScrollViewer x:Name="ScrollViewer">
         <SelectableTextBlock x:Name="LogTextBlock" FontFamily="Consolas, Noto Sans Mono, JetBrains Mono, DejaVu Sans Mono, monospace"/>
     </ScrollViewer>

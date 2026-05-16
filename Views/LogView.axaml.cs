@@ -3,12 +3,15 @@ using System.Collections.Specialized;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
+using NLog;
 using ParamVR.ViewModels;
 
 namespace ParamVR.Views;
 
 public partial class LogView : Window
 {
+    private readonly FontFamily font = FontFamily.Parse("Consolas, Noto Sans Mono, JetBrains Mono, DejaVu Sans Mono, monospace");
+
     public LogView()
     {
         InitializeComponent();
@@ -36,7 +39,7 @@ public partial class LogView : Window
         LogTextBlock.Inlines?.Add(new Run(line.Text + Environment.NewLine)
         {
             Foreground = line.Color ?? Foreground,
-            FontFamily = FontFamily.Parse("Consolas, Noto Sans Mono, JetBrains Mono, DejaVu Sans Mono, monospace")
+            FontFamily = font
         });
     }
 }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Avalonia.Media;
 using Avalonia.Threading;
+using NLog;
 
 namespace ParamVR.ViewModels;
 
@@ -22,7 +23,7 @@ public partial class LogViewViewModel : ViewModelBase
     public LogViewViewModel()
     {
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        logPath = Path.Combine(appData, "ParamVR", "logs", "latest.log");
+        logPath = Path.Combine(appData, "ParamVR.Chat", "logs", "latest.log");
 
         foreach (var line in File.ReadLines(logPath).TakeLast(100))
             OnLogLineReceived(line);
