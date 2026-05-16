@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -35,6 +36,9 @@
   </ItemGroup>
 
 	<ItemGroup>
+    <None Update="tray.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
 		<None Update="nlog.config">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

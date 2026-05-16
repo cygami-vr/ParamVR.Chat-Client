@@ -43,6 +43,11 @@ internal class WsReceiver
             logger.Info("Received avatar change over websocket to: {vrcUuid}", msg.vrcUuid);
             OscSender.Instance.Send("/avatar/change", msg.vrcUuid);
         }
+        else if (msg.eyeHeight != null)
+        {
+            logger.Info("Received new eye height over websocket: {eyeHeight}", msg.eyeHeight);
+            OscSender.Instance.Send("/avatar/eyeheight", (float)msg.eyeHeight);
+        }
         else
             logger.Warn("Empty websocket message received");
     }
@@ -74,6 +79,7 @@ internal class WsMessage
     public string type { get; set; }
     public WsParameter? parameter { get; set; }
     public string? vrcUuid { get; set; }
+    public float? eyeHeight { get; set; }
 }
 
 internal class WsParameter

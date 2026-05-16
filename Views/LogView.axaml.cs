@@ -1,6 +1,4 @@
-using System.Linq;
 using Avalonia.Controls;
-using Avalonia.VisualTree;
 using ParamVR.ViewModels;
 
 namespace ParamVR.Views;

@@ -60,9 +60,8 @@ internal class OscListener: IDisposable
                 lastMovementUpdate = time;
             }
         }
-        else if (!ShouldIgnore(sAddr) && (sAddr.StartsWith("/avatar/parameters") || sAddr.Equals("/avatar/change")))
+        else if (!ShouldIgnore(sAddr) && (sAddr.StartsWith("/avatar/parameters") || sAddr.Equals("/avatar/change") || sAddr.Equals("/avatar/eyeheight")))
         {
-
             var tag = msg.GetTypeTag(0);
 
             object? value = tag switch

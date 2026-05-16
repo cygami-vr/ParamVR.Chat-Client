@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using NLog;
 using System;
 using System.Threading;
@@ -47,6 +48,12 @@ sealed class Program
             {
                 logger.Error(e.Exception, "Unhandled exception");
                 e.SetObserved();
+            };
+
+            Dispatcher.UIThread.UnhandledException += (_, e) =>
+            {
+                logger.Error(e.Exception, "Unhandled exception");
+                e.Handled = true;
             };
 
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown);

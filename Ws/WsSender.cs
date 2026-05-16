@@ -2,13 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NLog;
 
 namespace ParamVR.Ws;
 
 internal class WsSender
 {
-    private static readonly Logger logger = LogManager.GetCurrentClassLogger();
     public static WsSender Instance { get; private set; } = new();
 
     private readonly object mutex = new();

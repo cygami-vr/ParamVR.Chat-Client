@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NLog;
 using NLog.Extensions.Logging;
 using ParamVR.Http;
 using VRC.OSCQuery;
@@ -14,12 +15,13 @@ namespace ParamVR.Osc;
 
 internal class PvrChatOscQueryService: IDisposable
 {
+    private static readonly Logger logger = LogManager.GetCurrentClassLogger();
     public static PvrChatOscQueryService Instance { get; private set; } = new();
 
     public int OscQueryPort { get; private set; }
     public int OscPortOut { get; private set; }
 
-    private readonly ILogger<OSCQueryService> logger;
+    private readonly ILogger<OSCQueryService> ilogger;
     public OSCQueryService? OscQueryService;
 
     private PvrChatOscQueryService()
@@ -34,12 +36,12 @@ internal class PvrChatOscQueryService: IDisposable
             .AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
-                loggingBuilder.SetMinimumLevel(LogLevel.Trace);
+                loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Warning);
                 loggingBuilder.AddNLog(config);
             }).BuildServiceProvider();
 
         var runner = servicesProvider.GetRequiredService<Runner>();
-        logger = runner.GetLogger();
+        ilogger = runner.GetLogger();
     }
 
     public void StartListening()
@@ -52,7 +54,7 @@ internal class PvrChatOscQueryService: IDisposable
             .WithTcpPort(tcpPort)
             .WithUdpPort(udpPort)
             .WithServiceName("ParamVRChat")
-            .WithLogger(logger)
+            .WithLogger(ilogger)
             .StartHttpServer()
             .AdvertiseOSCQuery()
             .AdvertiseOSC()
@@ -71,7 +73,7 @@ internal class PvrChatOscQueryService: IDisposable
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error listening for OSC & OSCQuery services.");
+            logger.Error(ex, "Error listening for OSC & OSCQuery services.");
         }
     }
 
@@ -85,7 +87,7 @@ internal class PvrChatOscQueryService: IDisposable
 
         if (oscServices.Count > 1 || oscQueryServices.Count > 1)
         {
-            logger.LogWarning("Too many services. Restarting.");
+            logger.Warn("Too many services. Restarting.");
             Instance.StartListening();
             return false;
         }
@@ -96,7 +98,7 @@ internal class PvrChatOscQueryService: IDisposable
                 var oscSvc = oscServices.First();
                 if (OscPortOut != oscSvc.port)
                 {
-                    logger.LogInformation("VRChat OSC service {name} found on port {port}", oscSvc.name, oscSvc.port);
+                    logger.Info("VRChat OSC service {name} found on port {port}", oscSvc.name, oscSvc.port);
                     OscPortOut = oscSvc.port;
                     OscSender.Instance.InitSender(OscPortOut);
                 }
@@ -107,7 +109,7 @@ internal class PvrChatOscQueryService: IDisposable
                 var oscQuerySvc = oscQueryServices.First();
                 if (OscQueryPort != oscQuerySvc.port)
                 {
-                    logger.LogInformation("VRChat OSCQuery service {name} found on port {port}", oscQuerySvc.name, oscQuerySvc.port);
+                    logger.Info("VRChat OSCQuery service {name} found on port {port}", oscQuerySvc.name, oscQuerySvc.port);
                     OscQueryPort = oscQuerySvc.port;
                     OscQueryHttpClient.Instance.SetPortAsync(OscQueryPort);
                 }
@@ -126,7 +128,7 @@ internal class PvrChatOscQueryService: IDisposable
             .ToHashSet();
 
         if (ret.Count > 1)
-            logger.LogWarning("More than one VRC {type} service found. Services = {services}", ret.First().serviceType, string.Join(", ", ret.Select(s => s.name)));
+            logger.Warn("More than one VRC {type} service found. Services = {services}", ret.First().serviceType, string.Join(", ", ret.Select(s => s.name)));
         return ret;
     }
 
